@@ -1,0 +1,30 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavMan
+
+<button @onclick="SRTest">Signal R test</button>
+<p>@Test</p>
+
+@code
+{
+	public HubConnection HC;
+	public string Test { get; set; } = "Pocetak";
+
+	protected override async Task OnInitializedAsync()
+	{
+		HC = new HubConnectionBuilder().WithUrl(NavMan.ToAbsoluteUri("/th")).Build();
+
+		HC.On("KlijentTest", () =>
+		{
+			Test = "Server Ziv :) ";
+			StateHasChanged();
+		});
+
+		await HC.StartAsync();
+	}
+
+	public Task SRTest()
+	{
+		return HC.SendAsync("TestMetoda");
+	}
+}
